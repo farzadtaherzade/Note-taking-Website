@@ -13,10 +13,32 @@ class Server {
     const morgan = require("morgan");
     const bodyParser = require("body-parser");
     const cors = require("cors");
+    const options = {
+      failOnErrors: true, // Whether or not to throw when parsing errors. Defaults to false.
+      definition: {
+        openapi: "3.0.0",
+        info: {
+          title: "Hello World",
+          version: "1.0.0",
+        },
+        servers: [
+          {
+            url: "http://localhost:8000",
+          },
+        ],
+      },
+      apis: ["./app/router/*.js"],
+    };
 
-    this.#app.use(
-      this.#express.static(path.join(__dirname, "..", "public", "v1"))
-    );
+    const { url } = require("inspector");
+    const swaggerJSDoc = require("swagger-jsdoc");
+    const swaggerSpec = swaggerJSDoc(options);
+    const swaggerUi = require("swagger-ui-express");
+
+    this.#app.use("/api-docs", swaggerUi.serve);
+    this.#app.get("/api-docs", swaggerUi.setup(swaggerSpec));
+
+    this.#app.use(this.#express.static(path.join(__dirname, "..", "public")));
     this.#app.use(morgan("dev"));
     this.#app.use(bodyParser.json());
     this.#app.use(cors());
@@ -48,20 +70,16 @@ class Server {
       err.statusCode = err.statusCode || 500;
       err.status = err.status || "error";
 
-      res.staus(err.statusCode).json({
+      res.status(err.statusCode).json({
         status: err.statusCode,
         message: err.message,
       });
     });
   }
   congigRoutes() {
-    const allRoutes = require("./router/routes");
+    const { allRoutes } = require("./router/routes");
 
-    this.#app.use("/", (req, res, next) => {
-      res.send("welcome Here");
-    });
-
-    this.#app.use("/v1/api", allRoutes);
+    this.#app.use("/api/v1", allRoutes);
   }
   startApp(port) {
     this.#app.listen(port, () => {
