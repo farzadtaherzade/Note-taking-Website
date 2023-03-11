@@ -1,14 +1,27 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import axios from "axios";
 
-import App from './App.vue'
-import router from './router'
+import App from "./App.vue";
+import router from "./router";
 
-import './assets/main.css'
+import "./assets/main.css";
 
-const app = createApp(App)
+const AUTH_TOKEN = "";
 
-app.use(createPinia())
-app.use(router)
+axios.defaults.baseURL = "http://localhost:8000/api/v1";
+axios.defaults.headers.post["Content-Type"] =
+  "application/x-www-form-urlencoded";
 
-app.mount('#app')
+import { BiEyeFill, BiEyeSlashFill, BiArrowLeft } from "oh-vue-icons/icons";
+import { OhVueIcon, addIcons } from "oh-vue-icons";
+
+addIcons(BiEyeFill, BiEyeSlashFill, BiArrowLeft);
+
+const app = createApp(App);
+
+app.component("v-icon", OhVueIcon);
+app.use(createPinia());
+app.use(router);
+
+app.mount("#app");

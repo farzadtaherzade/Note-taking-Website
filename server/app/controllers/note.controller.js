@@ -104,7 +104,7 @@ class NoteController {
   }
   async deleteNote(req, res, next) {
     try {
-      const _id = req.params?.id;
+      const _id = req.params.id;
       const author = req.user._id;
 
       const note = await NoteModel.findOne({ _id, author });
@@ -112,14 +112,14 @@ class NoteController {
 
       const result = await NoteModel.findOneAndDelete({ _id, author });
       if (result.deletedCount == 1) {
-        return res.status(200).json({
-          status: "success",
-          message: "Note successfully deleted",
+        return res.status(400).json({
+          status: "fail",
+          message: "error",
         });
       }
-      return res.status(400).json({
-        status: "fail",
-        message: "error",
+      return res.status(200).json({
+        status: "success",
+        message: "Note successfully deleted",
       });
     } catch (error) {
       next(error);
